@@ -3,6 +3,7 @@ package filter
 import (
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/logs"
+	"seckill/config"
 	"seckill/utils"
 )
 
@@ -12,7 +13,7 @@ var UserLoginFilter = func(ctx *context.Context) {
 		if loginTicket == nil || loginTicket.UserId == 0 {
 			// 验证登录失败
 			logs.Info("verify login failed,ticket is empty")
-			ctx.Redirect(302, "/login")
+			ctx.Redirect(302, config.AppConf.AppPath+"/login")
 		}
 	}
 }
