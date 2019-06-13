@@ -31,7 +31,7 @@ func (p *Controller) DetailViewer(template string, data map[interface{}]interfac
 	p.parseViewer(template, data, detailPage)
 }
 func (p *Controller) parseViewer(template string, data map[interface{}]interface{}, layoutType int) {
-	p.Data["base"] = "/"+config.AppConf.AppPath
+	p.Data["base"] = config.AppConf.AppPath
 	p.Data["requestUri"] = p.Ctx.Request.RequestURI
 	p.Data["loginUser"] = "秒杀"
 	if data != nil {
