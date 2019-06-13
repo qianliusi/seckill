@@ -14,6 +14,7 @@ func init() {
 	beego.InsertFilter("/*", beego.BeforeRouter, filter.UserLoginFilter)
 	//登录
 	beego.Router("/login", &login.LoginController{}, "*:Login")
+	beego.Router("/logout", &login.LoginController{}, "*:Logout")
 	beego.Router("/index", &login.LoginController{}, "*:Index")
 	beego.Router("/login.json", &login.LoginController{}, "*:LoginJson")
 

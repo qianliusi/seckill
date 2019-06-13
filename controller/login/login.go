@@ -27,6 +27,12 @@ func (p *LoginController) Index() {
 	p.HomeViewer("index.html", nil)
 }
 
+func (p *LoginController) Logout() {
+	p.Ctx.SetCookie(utils.LoginTicketKey, "", 0, "/", strings.Split(p.Ctx.Request.Host, ":")[0])
+	p.LoginViewer("login.html", nil)
+}
+
+
 func (p *LoginController) LoginJson() {
 	userName := p.GetString("username")
 	password := p.GetString("password")

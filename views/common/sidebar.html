@@ -1,5 +1,5 @@
 <div class="sidebar" id="SideBar">
-    <el-menu default-active="<<<.base>>>" class="el-menu-vertical-demo el-menu--dark" theme="dark" @open="handleOpen" @close="handleClose" @select="openPage">
+    <el-menu default-active="<<<.requestUri>>>" class="el-menu-vertical-demo el-menu--dark" theme="dark" @open="handleOpen" @close="handleClose" @select="openPage">
         <template v-for="item in items">
             <template v-if="item.subs">
                 <el-submenu :index="item.index">

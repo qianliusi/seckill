@@ -2,6 +2,7 @@ package base
 
 import (
 	"github.com/astaxie/beego"
+	"seckill/config"
 	"seckill/service"
 	"seckill/utils"
 )
@@ -30,7 +31,8 @@ func (p *Controller) DetailViewer(template string, data map[interface{}]interfac
 	p.parseViewer(template, data, detailPage)
 }
 func (p *Controller) parseViewer(template string, data map[interface{}]interface{}, layoutType int) {
-	p.Data["base"] = "/"
+	p.Data["base"] = "/"+config.AppConf.AppPath
+	p.Data["requestUri"] = p.Ctx.Request.RequestURI
 	p.Data["loginUser"] = "秒杀"
 	if data != nil {
 		for k, v := range data {

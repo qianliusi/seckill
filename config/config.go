@@ -18,6 +18,7 @@ type MysqlConfig struct {
 	Host     string
 }
 type Config struct {
+	AppPath     string
 	mysql       MysqlConfig
 	etcd        EtcdConf
 	log         LogConf
@@ -96,6 +97,7 @@ func initEtcdConf() (err error) {
 }
 func initLogConf() (err error) {
 	initErr := errors.New("init error")
+	AppConf.AppPath = beego.AppConfig.String("app_path")
 	path := beego.AppConfig.String("log_path")
 	if len(path) == 0 {
 		logs.Error("log_path is empty")
