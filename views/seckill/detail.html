@@ -1,0 +1,188 @@
+<div id="detail" style="margin-top:15px">
+    <el-row :gutter="24">
+        <el-col :span="6" :offset="2">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item onclick="widowOpen('/activity/index')"><i class="el-icon-menu"></i> 秒杀配置管理</el-breadcrumb-item>
+                <el-breadcrumb-item>秒杀测试</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-col>
+        <el-col :span="6" :offset="10">
+        </el-col>
+    </el-row>
+    <div :gutter="24">
+        <div class="detail_body">
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="16" :offset="0">
+                        基本信息
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 活动ID： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.id}}</el-col>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">名称： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.name}}</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 状态： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.statusStr}}</el-col>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">开始时间：</el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.startTimeStr}}</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 结束时间： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.endTimeStr}}</el-col>
+                    </el-col>
+                </el-row>
+            </div>
+
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;margin-top:20px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="20" :offset="0">
+                        参与活动商品
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <el-row :gutter="24">
+                    <el-table
+                            v-loading.body="initData.loadingTable"
+                            element-loading-text="拼命加载中"
+                            :data="initData.activityProducts"
+                            border
+                            stripe
+                            :default-sort = "{prop: 'id', order: 'descending'}" @sort-change="sortChange">
+                        <el-table-column prop="id" fixed label="ID" min-width="60"></el-table-column>
+                        <el-table-column prop="productId" label="商品ID" min-width="60" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="product.name" label="商品名" min-width="60" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="statusStr" label="状态" min-width="60" show-overflow-tooltip></el-table-column>
+                        <el-table-column prop="total" label="商品数量"  min-width="90"></el-table-column>
+                        <el-table-column prop="secSpeed" label="购买速率（件/秒）"  min-width="90"></el-table-column>
+                        <el-table-column prop="buyLimit" label="购买限制"  min-width="90"></el-table-column>
+                        <el-table-column prop="buyRate" label="购买概率" :formatter="formatBuyRate"  min-width="90"></el-table-column>
+                        <el-table-column fixed="right" label="操作" min-width="80">
+                            <template scope="scope">
+                                <el-button @click="kill(scope.row)" type="text" size="small">抢购</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <el-pagination
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="formData.page"
+                            :page-sizes="[10, 150, 250]"
+                            :page-size="formData.rows"
+                            layout="total, sizes, prev, pager, next"
+                            :total="initData.total">
+                    </el-pagination>
+                </el-row>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const activityId = '<<<.activityId>>>';
+    const Main = {
+        data() {
+            return {
+                initData: {
+                    loadingTable: false,
+                    activityProducts: [],
+                    total: 0,
+                    dialogVisible:false,
+                    id:'',
+                },
+                activityDetail:{},
+                formData: {
+                    page: 1,
+                    rows: 10,
+                    sort: 'id',
+                    order: 'desc',
+                    activityId: 0,
+                },
+            }
+        },
+        methods: {
+            formatBuyRate(row, column, value) {
+                return value + "%"
+            },
+            handleSizeChange(val) {
+                this.formData.rows = val;
+                this.formData.page = 1;
+            },
+            handleCurrentChange(val) {
+                this.formData.page = val;
+            },
+            handleClose(){
+                this.initData.dialogVisible = false;
+                this.initData.id = '';
+            },
+            kill(row) {
+                const _this = this;
+                jQuery.ajax({
+                    url:jsBasePath + "/seckill/kill.json",
+                    data: {productId:row.productId},
+                    type: "post",
+                    dataType: "json",
+                    success: function (response) {
+                        if(response.code === 0) {
+                            _this.$message({
+                                message: '操作成功,msg:'+JSON.stringify(response.data),
+                                type: 'success'
+                            });
+                        } else {
+                            _this.$message.error(response.message);
+                        }
+                    }
+                });
+            },
+            getDetail: function() {
+                const _this = this;
+                jQuery.ajax({
+                    url: jsBasePath+"/seckill/info.json",
+                    data: {id:activityId},
+                    type: "post",
+                    dataType: "json",
+                    success: function (response) {
+                        if(response.code === 0) {
+                            if (response.data) {
+                                _this.$data.activityDetail = response.data.Activity;
+                                _this.$data.initData.activityProducts = response.data.Products;
+                                if (response.data.Products) {
+                                    _this.$data.initData.total = response.data.Products.length;
+                                }
+                            }
+
+                        }else {
+                            _this.$message({
+                                message: response.message,
+                                type: 'error'
+                            });
+                        }
+                    }
+                });
+            },
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+                this.getDetail();
+            })
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#detail')
+</script>

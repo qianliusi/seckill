@@ -1,0 +1,57 @@
+*{margin:0;padding:0;}
+body{
+    font-size: 14px;
+    background: url(../pics/login/bg.png) center no-repeat;
+    background-size: 100px;
+    font-family:Microsoft YaHei;
+    min-height: 700px;
+}
+.bg{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    left: 0;
+    top: 0;
+}
+li{list-style: none;}
+.container{
+    width: 800px;
+    height: 432px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left:-400px;
+    margin-top:-216px;
+    background: #F5F7F8;
+    border-radius: 6px;
+    text-align: center;
+    z-index: 2;
+}
+.logo{
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    left: 50%;
+    margin-left: -50px;
+    top: 0;
+    margin-top: -50px;
+}
+.red{color: red;display: none;}
+.title{margin-top: 40px;height: 80px;line-height: 80px;font-size: 32px;color: #333;}
+.erweima{width: 168px;height: 168px;margin: 0 auto;background: #ccc;}
+.erweima img{width:100%;height: 100%;}
+.tips-list{color: #999;line-height: 42px;}
+.tips{height: 70px;line-height: 70px;font-size: 20px;color: #666;}
+.right,.left{width: 400px;position:absolute;bottom: 0;height: 318px;}
+.right{right: 0;}
+.left{}
+.img{position: absolute;left: 16px;top: 10px;}
+.input-box{position:relative;width: 320px;border:1px solid #ddd;overflow:hidden;border-radius: 5px;box-sizing:border-box;margin:0 auto 16px;}
+.input-box input{box-sizing:border-box;text-indent:6px;font-size:16px;width: 100%;height: 40px;line-height: 16px;padding: 12px 0;border: 0;padding-left:40px;}
+.btn{cursor:pointer;width: 320px;height: 40px;border:0 none;line-height: 40px;color: #fff;background: #1CBD9D;font-size: 18px;display: block;border-radius: 5px;margin: 28px auto 0;}
+.active{background: #14A186;}
+.password{line-height: 40px;color: #666;width: 320px;margin:0 auto;text-align: left;}
+.password a{color: #666;text-decoration: underline;float: right;}
+#result{position: absolute;left: 0;bottom: -168px;width:100%;height:168px;text-align:center;}
+#result img{width: 168px;height: 168px;}

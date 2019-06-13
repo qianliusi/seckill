@@ -1,0 +1,9 @@
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+logs/*
+*.log
+*.exe

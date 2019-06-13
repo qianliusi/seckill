@@ -1,0 +1,394 @@
+<div id="detail" style="margin-top:15px">
+    <el-row :gutter="24">
+        <el-col :span="6" :offset="2">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item onclick="widowOpen('/sec_conf/index')"><i class="el-icon-menu"></i> 秒杀配置管理</el-breadcrumb-item>
+                <el-breadcrumb-item>秒杀配置</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-col>
+        <el-col :span="6" :offset="10">
+        </el-col>
+    </el-row>
+    <div :gutter="24">
+        <div class="detail_body">
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="20" :offset="0">
+                        用户访问控制
+                    </el-col>
+                    <el-col :span="4" :offset="0">
+                        <el-button size="small" type="primary" @click="showModifyUserAccess()">编 辑</el-button>
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">IP秒频率： </el-col>
+                        <el-col :span="10" :offset="0"> {{secConfDetail.AccessLimitConf.IPSecAccessLimit}}次/秒</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> IP分钟频率： </el-col>
+                        <el-col :span="10" :offset="0"> {{secConfDetail.AccessLimitConf.IPMinAccessLimit}}次/分钟</el-col>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">用户秒频率： </el-col>
+                        <el-col :span="10" :offset="0"> {{secConfDetail.AccessLimitConf.UserSecAccessLimit}}次/秒</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 用户分钟频率： </el-col>
+                        <el-col :span="10" :offset="0"> {{secConfDetail.AccessLimitConf.UserMinAccessLimit}}次/分钟</el-col>
+                    </el-col>
+                </el-row>
+            </div>
+
+
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;margin-top:20px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="20" :offset="0">
+                        ReferWhiteList
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <el-form label-width="120px" ref="secConfDetail" :model="secConfDetail"  >
+                <el-input
+                        type="textarea"
+                        :rows="2"
+                        placeholder="请输入"
+                        v-model="secConfDetail.ReferWhiteList">
+                </el-input>
+                <el-row :gutter="24">
+                    <br/>
+                    <el-col :span="6" :offset="22">
+                        <el-button type="primary" @click="modifyReferWhiteList('secConfDetail')">提 交</el-button>
+                    </el-col>
+                </el-row>
+                </el-form>
+            </div>
+
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;margin-top:20px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="20" :offset="0">
+                        IP黑名单
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <el-form label-width="120px" ref="secConfDetail" :model="secConfDetail"  >
+                    <el-row :gutter="24">
+                        <el-col :span="24" :offset="0">
+                    <el-input
+                            type="textarea"
+                            :rows="2"
+                            placeholder=""
+                            v-model="IpBlackStr">
+                    </el-input>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="24">
+                        <el-col :span="12" :offset="0">
+                            <el-input
+                                    type="input"
+                                    placeholder="请输入"
+                                    v-model="secConfDetail.IpInput" auto-complete="off" :maxlength="15">
+                            </el-input>
+                        </el-col>
+                        <el-col :span="12" :offset="0">
+                            <el-button type="primary" @click="modifyBlackList('secConfDetail','ip')">添 加</el-button>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </div>
+
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;margin-top:20px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="20" :offset="0">
+                        ID黑名单
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <el-form label-width="120px" ref="secConfDetail" :model="secConfDetail"  >
+                    <el-row :gutter="24">
+                        <el-col :span="24" :offset="0">
+                            <el-input
+                                    type="textarea"
+                                    :rows="2"
+                                    placeholder=""
+                                    v-model="IdBlackStr">
+                            </el-input>
+                        </el-col>
+                    </el-row>
+                    <el-row :gutter="24">
+                        <el-col :span="12" :offset="0">
+                            <el-input
+                                    type="input"
+                                    placeholder="请输入"
+                                    v-model="secConfDetail.IdInput" auto-complete="off" :maxlength="15">
+                            </el-input>
+                        </el-col>
+                        <el-col :span="12" :offset="0">
+                            <el-button type="primary" @click="modifyBlackList('secConfDetail','id')">添 加</el-button>
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </div>
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="4" :offset="0">
+                        当前参与秒杀活动
+                    </el-col>
+                    <el-col :span="20" :offset="0"> [ {{secConfDetail.SecKillActivity.Activity.id}} ][ {{secConfDetail.SecKillActivity.Activity.name}} ]
+                        <el-button @click="handleDetail()" type="primary" size="small">查看</el-button>
+                    </el-col>
+                </el-row>
+            </div>
+
+        </div>
+    </div>
+    <el-dialog  width="30%" title="用户访问限制" :visible.sync="initData.dialogVisible" :before-close="handleClose">
+        <el-form label-width="120px" ref="AccessLimitConf" :model="AccessLimitConf"  >
+            <el-form-item label="IP秒频率" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入"
+                        v-model="AccessLimitConf.IPSecAccessLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">次/秒</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="IP分钟频率" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入"
+                        v-model="AccessLimitConf.IPMinAccessLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">次/分钟</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="用户秒频率" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入"
+                        v-model="AccessLimitConf.UserSecAccessLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">次/秒</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="用户分钟频率" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入"
+                        v-model="AccessLimitConf.UserMinAccessLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">次/分钟</template>
+                </el-input>
+            </el-form-item>
+
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="modifyUserAccessLimitForm('AccessLimitConf')">提 交</el-button>
+            <el-button @click="handleClose">取 消</el-button>
+        </span>
+    </el-dialog>
+    
+
+</div>
+<<<template "activity/product_list.html">>>
+<script>
+    const activityId = '<<<.activityId>>>';
+    const Main = {
+        data() {
+            return {
+                initData: {
+                    dialogVisible: false,
+                    id: '',
+                },
+                secConfDetail: {
+                    SecKillActivity:{
+                        Activity:{
+
+                        }
+                    },
+                    AccessLimitConf: {
+                        IPSecAccessLimit: 0,
+                        UserSecAccessLimit: 0,
+                        IPMinAccessLimit: 0,
+                        UserMinAccessLimit: 0,
+                    },
+                    ReferWhiteList:'',
+                    IpBlack:'',
+                    IdBlack:'',
+                    IpInput:'',
+                    IdInput:'',
+                },
+                AccessLimitConf: {},
+                memberAccountDTO: {},
+                editActivityFormData: {
+                    startDate: '',
+                    endDate: '',
+                    total: 10,
+                    secSpeed: 10,
+                    buyLimit: 2,
+                    buyRate: 50,
+                },
+            }
+        },
+        computed: {
+            /**
+             * @return {string}
+             */
+            IpBlackStr: function () {
+                return this.formatBlack(this.secConfDetail.IpBlack);
+            },
+            /**
+             * @return {string}
+             */
+            IdBlackStr: function () {
+                return this.formatBlack(this.secConfDetail.IdBlack);
+            }
+        },
+        methods: {
+            handleDetail() {
+                const url = jsBasePath + '/activity/detail?id=' + this.secConfDetail.SecKillActivity.Activity.id;
+                window.open(url);
+            },
+            formatBlack(data){
+                return JSON.stringify(data).replace(new RegExp(`[":\\\\{}]`,'g'),'');
+            },
+            activityProductsInit(activityId) {
+                this.$refs.activityProducts.init(activityId);
+            },
+            handleClose() {
+                this.initData.dialogVisible = false;
+                this.initData.id = '';
+            },
+            showModifyUserAccess() {
+                this.AccessLimitConf = JSON.parse(JSON.stringify(this.secConfDetail.AccessLimitConf));
+                this.initData.dialogVisible = true;
+            },
+            modifyBlackList(formName,type) {
+                const _this = this;
+                let blackData;
+                const typeIp = type === "ip";
+                if (typeIp) {
+                    blackData = this.$data.secConfDetail.IpInput;
+                }else {
+                    blackData = this.$data.secConfDetail.IdInput;
+                }
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        jQuery.ajax({
+                            url: jsBasePath + "/sec_conf/blacklist/edit.json?type="+type,
+                            data: {"data": blackData},
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if (response.code === 0) {
+                                    // _this.secConfDetail.IpBlack[blackData]="";
+                                    // _this.secConfDetail.IpBlack = JSON.parse(JSON.stringify(_this.secConfDetail.IpBlack))
+                                    _this.getDetail();
+                                    _this.$message({
+                                        message: '更新成功',
+                                        type: 'success'
+                                    });
+                                } else {
+                                    _this.$message.error(response.message + ",更新失败");
+                                }
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            modifyReferWhiteList(formName) {
+                const _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        jQuery.ajax({
+                            url: jsBasePath + "/sec_conf/refer_white_list/edit.json",
+                            data: {ReferWhiteList:this.$data.secConfDetail.ReferWhiteList},
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if (response.code === 0) {
+                                    _this.$message({
+                                        message: '更新成功',
+                                        type: 'success'
+                                    });
+                                } else {
+                                    _this.$message.error(response.message + ",更新失败");
+                                }
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            modifyUserAccessLimitForm(formName) {
+                const _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        jQuery.ajax({
+                            url: jsBasePath + "/sec_conf/user_access_limit/edit.json",
+                            data: this.$data.AccessLimitConf,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if (response.code === 0) {
+                                    _this.initData.dialogVisible = false;
+                                    // _this.getDetail();
+                                    _this.secConfDetail.AccessLimitConf = JSON.parse(JSON.stringify(_this.$data.AccessLimitConf));
+                                    _this.$message({
+                                        message: '更新成功',
+                                        type: 'success'
+                                    });
+                                } else {
+                                    _this.$message.error(response.message + ",更新失败");
+                                }
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            convertData(data) {
+                this.AccessLimitConf = JSON.parse(JSON.stringify(data));
+            },
+            getDetail: function () {
+                const _this = this;
+                jQuery.ajax({
+                    url: jsBasePath + "/sec_conf/detail.json",
+                    data: {},
+                    type: "post",
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.code === 0) {
+                            _this.$data.secConfDetail = response.data;
+                        } else {
+                            _this.$message({
+                                message: response.message,
+                                type: 'error'
+                            });
+                        }
+                    }
+                });
+            },
+            form() {
+                console.log('form!');
+            }
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+                this.getDetail();
+            })
+        }
+    };
+    const Ctor = Vue.extend(Main);
+    new Ctor().$mount('#detail')
+</script>

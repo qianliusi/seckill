@@ -1,0 +1,300 @@
+<div class="table" id="app">
+    <div>
+        <el-breadcrumb separator="">
+            <el-breadcrumb-item><i class="el-icon-menu"></i> 商品管理</el-breadcrumb-item>
+            <el-breadcrumb-item></el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <br/>
+    <el-form ref="formData" label-position="right" :model="formData" :inline="true" label-width="100px" :rules="rules">
+        <el-row :gutter="24">
+                <el-form-item label="商品名" prop="name">
+                    <el-input
+                            type="input"
+                            placeholder="商品名"
+                            v-model="formData.name" auto-complete="off" :maxlength="50">
+                    </el-input>
+                </el-form-item>
+        <br/>
+        </el-row>
+        <el-row :gutter="24">
+            <el-col :span="12" :offset="0">
+                <el-button type="primary" icon="el-icon-plus" @click="initData.dialogVisible = true;">新增商品</el-button>
+            </el-col>
+            <el-col :span="6" :offset="6">
+                <el-button type="primary" icon="el-icon-search"  @click="submitForm('formData')">查询</el-button>
+            </el-col>
+        </el-row>
+    </el-form>
+    <br/>
+    <el-table
+            v-loading.body="initData.loadingTable"
+            element-loading-text="拼命加载中"
+            :data="initData.tableData"
+            border
+            stripe
+            height="580"
+            style="width: 100%"
+            >
+        <el-table-column prop="id" fixed label="商品ID" min-width="60"></el-table-column>
+        <el-table-column prop="name" label="商品名" min-width="60" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="shortName" label="商品简称" min-width="60" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="area" label="产地"  min-width="90"></el-table-column>
+        <el-table-column prop="total" label="数量"  min-width="180"></el-table-column>
+        <el-table-column fixed="right" label="操作" min-width="80">
+            <template scope="scope">
+                <el-button @click="editDetail(scope.row)" type="text" size="small">编辑</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="formData.page"
+            :page-sizes="[20, 150, 250]"
+            :page-size="formData.rows"
+            layout="total, sizes, prev, pager, next"
+            :total="initData.total">
+    </el-pagination>
+  </span>
+    </el-dialog>
+
+    <el-dialog  width="30%" title="新增商品" :visible.sync="initData.dialogVisible" append-to-body>
+        <el-form label-width="120px" ref="addFormData" :model="addFormData"  >
+            <el-form-item label="商品名" prop="name" :rules="{required: true, message: '请填写商品', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入商品"
+                        v-model="addFormData.name" auto-complete="off" :maxlength="50">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="商品简称" prop="shortName" :rules="{required: false, message: '请填写商品简称', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入商品简称"
+                        v-model="addFormData.shortName" auto-complete="off" :maxlength="50">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="产地" prop="area" :rules="{required: true, message: '请填写产地', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入产地"
+                        v-model="addFormData.area" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="数量" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入数量"
+                        v-model="addFormData.total" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" :disabled="initData.addGoodsDisabled" @click="addGoods('addFormData')">提 交</el-button>
+            </span>
+    </el-dialog>
+
+
+    <el-dialog  width="30%" title="编辑商品" :visible.sync="editDialogVisible" append-to-body>
+        <el-form label-width="120px" ref="editFormData" :model="editFormData"  >
+            <el-form-item label="商品名" prop="name" :rules="{required: true, message: '请填写商品', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入商品"
+                        v-model="editFormData.name" auto-complete="off" :maxlength="50">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="商品简称" prop="shortName" :rules="{required: false, message: '请填写商品简称', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入商品简称"
+                        v-model="editFormData.shortName" auto-complete="off" :maxlength="50">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="产地" prop="area" :rules="{required: true, message: '请填写产地', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入产地"
+                        v-model="editFormData.area" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="数量" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入数量"
+                        v-model="editFormData.total" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" :disabled="initData.addGoodsDisabled" @click="editGoods('editFormData')">提 交</el-button>
+            </span>
+    </el-dialog>
+
+
+</div>
+
+
+<script>
+    var Main = {
+        data() {
+            return {
+                editDialogVisible:false,
+                initData: {
+                    supplierOptions:[],
+                    tableData:[],
+                    currentPage: 1,
+                    total:0,
+                    loadingTable:true,
+                    dialogVisible:false,
+                    addGoodsDisabled:false,
+                },
+                formData: {
+                    name:'',
+                    page:1,
+                    rows:20,
+                    sort:'id',
+                    order:'desc',
+                },
+                addFormData: {
+                },
+                editFormData: {
+                },
+                rules: {
+                },
+            }
+        },
+        methods: {
+            refresh: function () {
+                console.log("refresh");
+            },
+            addGoods(formName) {
+                var _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        var initData = this.initData;
+                        initData.addGoodsDisabled = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/product/add.json",
+                            data: this.$data.addFormData,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.code == 0) {
+                                    _this.$message({
+                                        message: '添加成功',
+                                        type: 'success'
+                                    });
+                                    initData.dialogVisible=false;
+                                    _this.submitForm('formData');
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                                initData.addGoodsDisabled = false;
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            editGoods(formName) {
+                var _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        var initData = this.initData;
+                        initData.addGoodsDisabled = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/product/edit.json",
+                            data: this.$data.editFormData,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.code == 0) {
+                                    _this.$message({
+                                        message: '修改成功',
+                                        type: 'success'
+                                    });
+                                    _this.editDialogVisible=false;
+                                    _this.submitForm('formData');
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                                initData.addGoodsDisabled = false;
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            editDetail(row) {
+                this.editFormData.id = row.id;
+                this.editFormData.name = row.name;
+                this.editFormData.shortName = row.shortName;
+                this.editFormData.area = row.area;
+                this.editFormData.total = row.total;
+                this.editDialogVisible = true;
+            },
+            handleSizeChange(val) {
+                this.formData.rows = val;
+                this.formData.page = 1;
+                this.submitForm();
+            },
+            handleCurrentChange(val) {
+                this.formData.page = val;
+                this.submitForm();
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            submitForm(formName) {
+                var _this = this;
+                var refs = this.$refs;
+                var initData = this.initData;
+                refs['formData'].validate((valid) => {
+                    if(valid){
+                        initData.loadingTable = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/product/list.json",
+                            data: this.$data.formData,
+                            type: "get",
+                            dataType: "json",
+                            success: function (response) {
+                                initData.loadingTable = false;
+                                if(response.code == 0) {
+                                    initData.tableData = response.rows;
+                                    initData.total = response.total;
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            },
+            form() {
+                console.log('form!');
+            }
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+                this.submitForm('formData');
+            })
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>

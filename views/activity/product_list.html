@@ -1,0 +1,378 @@
+<template id="activityProducts">
+    <div>
+
+        <el-row :gutter="24">
+            <el-col :span="12" :offset="0">
+                <el-button type="primary" icon="el-icon-plus" @click="initData.dialogVisible = true;">活动商品</el-button>
+            </el-col>
+        </el-row>
+
+    <el-row :gutter="24">
+        <el-table
+                v-loading.body="initData.loadingTable"
+                element-loading-text="拼命加载中"
+                :data="initData.activityProducts"
+                border
+                stripe
+                :default-sort = "{prop: 'id', order: 'descending'}" @sort-change="sortChange">
+            <el-table-column prop="id" fixed label="ID" min-width="60"></el-table-column>
+            <el-table-column prop="productId" label="商品名" min-width="60" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="product.name" label="商品名" min-width="60" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="statusStr" label="状态" min-width="60" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="total" label="商品数量"  min-width="90"></el-table-column>
+            <el-table-column prop="secSpeed" label="购买速率（件/秒）"  min-width="90"></el-table-column>
+            <el-table-column prop="buyLimit" label="购买限制"  min-width="90"></el-table-column>
+            <el-table-column prop="buyRate" label="购买概率" :formatter="formatBuyRate"  min-width="90"></el-table-column>
+            <el-table-column fixed="right" label="操作" min-width="80">
+                <template scope="scope">
+                    <el-button @click="editDetail(scope.row)" type="text" size="small">编辑</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="formData.page"
+                    :page-sizes="[10, 150, 250]"
+                    :page-size="formData.rows"
+                    layout="total, sizes, prev, pager, next"
+                    :total="initData.total">
+            </el-pagination>
+    </el-row>
+
+        <el-dialog  width="30%" title="新增活动商品" :visible.sync="initData.dialogVisible" append-to-body>
+            <el-form label-width="120px" ref="addFormData" :model="addFormData"  >
+                <el-form-item label="商品" prop="productId" :rules="{required: true, message: '请选择商品', trigger: 'change' }">
+                    <el-select v-model="addFormData.productId" placeholder="请选择" clearable>
+                        <el-option
+                                v-for="item in initData.productOptions"
+                                :key="item.id"
+                                :label="item.name"
+                                :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="数量" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                    <el-input
+                            type="input"
+                            placeholder="请输入数量"
+                            v-model="addFormData.total" auto-complete="off" :maxlength="10">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="购买速率" prop="secSpeed" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                    <el-input
+                            type="input"
+                            placeholder="请输入购买速率（0表示不限制）"
+                            v-model="addFormData.secSpeed" auto-complete="off" :maxlength="10">
+                        <template slot="append">（件/每秒）</template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="购买限制" prop="buyLimit" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                    <el-input
+                            type="input"
+                            placeholder="请输入购买限制（0表示不限制）"
+                            v-model="addFormData.buyLimit" auto-complete="off" :maxlength="10">
+                        <template slot="append">件</template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="购买概率" prop="buyRate" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                    <el-input
+                            type="input"
+                            placeholder="请输入购买概率（0表示不限制）"
+                            v-model="addFormData.buyRate" auto-complete="off" :maxlength="10">
+                        <template slot="append">%</template>
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" :disabled="initData.addGoodsDisabled" @click="addGoods('addFormData')">提 交</el-button>
+            </span>
+        </el-dialog>
+
+    <el-dialog  width="30%" title="编辑活动商品" :visible.sync="editDialogVisible" append-to-body>
+        <el-form label-width="120px" ref="editFormData" :model="editFormData"  >
+            <el-form-item label="商品ID" prop="productId" >
+                {{editFormData.productId}}
+            </el-form-item>
+            <el-form-item label="商品名" prop="productName" >
+                {{editFormData.productName}}
+            </el-form-item>
+            <el-form-item label="数量" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入数量"
+                        v-model="editFormData.total" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="购买速率" prop="secSpeed" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买速率（0表示不限制）"
+                        v-model="editFormData.secSpeed" auto-complete="off" :maxlength="10">
+                    <template slot="append">（件/每秒）</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="购买限制" prop="buyLimit" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买限制（0表示不限制）"
+                        v-model="editFormData.buyLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">件</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="购买概率" prop="buyRate" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买概率（0表示不限制）"
+                        v-model="editFormData.buyRate" auto-complete="off" :maxlength="10">
+                    <template slot="append">%</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="状态" prop="status" >
+                <el-select v-model="editFormData.status" placeholder="请选择">
+                    <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" :disabled="initData.addGoodsDisabled" @click="editGoods('editFormData')">提 交</el-button>
+            </span>
+    </el-dialog>
+    </div>
+</template>
+
+<script>
+    const ap = {
+        props: ['visible'],
+        template: '#activityProducts',
+        data() {
+            return {
+                options: [{
+                    value: 0,
+                    label: '正常'
+                }, {
+                    value: 1,
+                    label: '售罄'
+                }, {
+                    value: 2,
+                    label: '强制售罄'
+                }],
+                jsBasePath: jsBasePath,
+                editDialogVisible: false,
+                initData: {
+                    productOptions:[],
+                    dialogVisible:false,
+                    loadingTable: false,
+                    activityProducts: [],
+                    total: 0,
+                    addGoodsDisabled:false,
+                },
+                addFormData: {
+                    productId:'',
+                    activityId:activityId,
+                    total:10,
+                    secSpeed:10,
+                    buyLimit:2,
+                    buyRate:50,
+                },
+                editFormData: {
+                    id:'',
+                    productId:'',
+                    activityId:'',
+                    total:10,
+                    secSpeed:10,
+                    buyLimit:2,
+                    buyRate:50,
+                    status:0,
+                },
+                formData: {
+                    page: 1,
+                    rows: 10,
+                    sort: 'id',
+                    order: 'desc',
+                    activityId: 0,
+                },
+            }
+        },
+        computed: {
+        },
+        methods: {
+            addGoods(formName) {
+                const _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        const initData = this.initData;
+                        initData.addGoodsDisabled = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/activity/product/add.json",
+                            data: this.$data.addFormData,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.code === 0) {
+                                    _this.$message({
+                                        message: '添加成功',
+                                        type: 'success'
+                                    });
+                                    initData.dialogVisible=false;
+                                    _this.queryActivityProducts();
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                                initData.addGoodsDisabled = false;
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            getProducts() {
+                const initData = this.initData;
+                jQuery.ajax({
+                    url:jsBasePath + "/product/list.json",
+                    data: {page:1,rows:10000},
+                    type: "get",
+                    dataType: "json",
+                    success: function (response) {
+                        initData.loadingTable = false;
+                        if(response.code === 0) {
+                            initData.productOptions = response.rows;
+                        }
+                    }
+                });
+
+            },
+            editGoods(formName) {
+                const _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        const initData = this.initData;
+                        initData.addGoodsDisabled = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/activity/product/edit.json",
+                            data: this.$data.editFormData,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.code === 0) {
+                                    _this.$message({
+                                        message: '修改成功',
+                                        type: 'success'
+                                    });
+                                    _this.editDialogVisible=false;
+                                    _this.queryActivityProducts();
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                                initData.addGoodsDisabled = false;
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            editDetail(row) {
+                this.editFormData.id = row.id;
+                this.editFormData.productId = row.productId;
+                this.editFormData.activityId = row.activityId;
+                this.editFormData.productName = row.product.name;
+                this.editFormData.total = row.total;
+                this.editFormData.secSpeed = row.secSpeed;
+                this.editFormData.buyLimit = row.buyLimit;
+                this.editFormData.buyRate = row.buyRate;
+                this.editFormData.status = row.status;
+                this.editDialogVisible = true;
+            },
+            formatBuyRate(row, column, value) {
+                return value + "%"
+            },
+            init(activityId) {
+                const _this = this;
+                if (activityId) {
+                    _this.formData.activityId = activityId;
+                    _this.queryActivityProducts();
+                }
+            },
+            queryActivityProducts() {
+                const initData = this.initData;
+                const formData = this.formData;
+                const _this = this;
+                if (jQuery.trim(_this.formData.activityId)) {
+                    jQuery.ajax({
+                        url: jsBasePath + "/activity/product/list.json",
+                        data: formData,
+                        type: "post",
+                        dataType: "json",
+                        success: function (response) {
+                            if (response.code === 0) {
+                                initData.activityProducts = response.rows;
+                                initData.total = response.total;
+                            } else {
+                                initData.activityProducts = [];
+                                _this.$message({
+                                    message: response.message,
+                                    type: 'error'
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    initData.activityProducts = [];
+                }
+            },
+            handleSizeChange(val) {
+                this.formData.rows = val;
+                this.formData.page = 1;
+                this.queryActivityProducts();
+            },
+            handleCurrentChange(val) {
+                this.formData.page = val;
+                this.queryActivityProducts();
+            },
+            submitAfter: function () {
+                this.$emit('submit-after')
+            },
+            refresh() {
+                this.queryActivityProducts();
+            },
+            sortChange(sort) {
+                if (sort.prop) {
+                    this.formData.sort = sort.prop;
+                    if ("ascending" === sort.order) {
+                        this.formData.order = "asc";
+                    } else {
+                        this.formData.order = "desc";
+                    }
+                } else {
+                    this.formData.sort = "certifyTime";
+                    this.formData.order = "desc";
+                }
+            },
+            dateFormat(row, column, cellValue) {
+                return new Date(cellValue).Format("yyyy-MM-dd hh:mm:ss");
+            },
+        },
+        watch: {},
+        mounted: function () {
+            this.$nextTick(function () {
+                this.getProducts();
+            })
+        }
+    };
+    const activityProducts = Vue.component('activity-products', ap);
+</script>

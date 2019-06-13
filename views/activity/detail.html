@@ -1,0 +1,280 @@
+<div id="detail" style="margin-top:15px">
+    <el-row :gutter="24">
+        <el-col :span="6" :offset="2">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item onclick="widowOpen('/activity/index')"><i class="el-icon-menu"></i> 活动管理</el-breadcrumb-item>
+                <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+            </el-breadcrumb>
+        </el-col>
+        <el-col :span="6" :offset="10">
+        </el-col>
+    </el-row>
+    <div :gutter="24">
+        <div class="detail_body">
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="16" :offset="0">
+                        基本信息
+                    </el-col>
+                    <el-col :span="2" :offset="0">
+                        <el-button type="primary"  @click="showModifyActivity()">编辑</el-button>
+                    </el-col>
+                    <el-col :span="4" :offset="0">
+                        <el-button type="primary"  @click="add2Kill()">加入秒杀</el-button>
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 活动ID： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.id}}</el-col>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">名称： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.name}}</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 状态： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.statusStr}}</el-col>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">开始时间：</el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.startTimeStr}}</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 结束时间： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.endTimeStr}}</el-col>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">默认数量：</el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.total}}件</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 默认购买速率： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.secSpeed}}（件/每秒）</el-col>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="24">
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0">默认购买限制：</el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.buyLimit}}件</el-col>
+                    </el-col>
+                    <el-col :span="12" :offset="0">
+                        <el-col :span="8" :offset="0"> 默认购买概率： </el-col>
+                        <el-col :span="10" :offset="0"> {{activityDetail.buyRate}}%</el-col>
+                    </el-col>
+                </el-row>
+            </div>
+
+            <div class="grid-content" style="border-bottom: 1px solid #eee; margin-bottom: 15px;margin-top:20px;padding-left: 10px;font-size: 18px">
+                <el-row :gutter="24">
+                    <el-col :span="20" :offset="0">
+                        参与活动商品
+                    </el-col>
+                </el-row>
+            </div>
+            <div class="grid-content bg-purple" style="">
+                <activity-products v-on:submit-after="" ref="activityProducts"/>
+            </div>
+        </div>
+    </div>
+    <el-dialog  width="30%" title="编辑活动" :visible.sync="initData.dialogVisible" :before-close="handleClose">
+        <el-form label-width="120px" ref="editActivityFormData" :model="editActivityFormData"  >
+            <el-form-item label="活动名" prop="name" :rules="{required: true, message: '请填写活动', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入活动"
+                        v-model="editActivityFormData.name" auto-complete="off" :maxlength="50">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="开始时间" prop="startDate" >
+                <el-date-picker
+                        v-model="editActivityFormData.startDate"
+                        type="datetime"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="结束时间" prop="endDate" >
+                <el-date-picker
+                        v-model="editActivityFormData.endDate"
+                        type="datetime"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="默认数量" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入数量"
+                        v-model="editActivityFormData.total" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买速率" prop="secSpeed" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买速率（0表示不限制）"
+                        v-model="editActivityFormData.secSpeed" auto-complete="off" :maxlength="10">
+                    <template slot="append">（件/每秒）</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买限制" prop="buyLimit" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买限制（0表示不限制）"
+                        v-model="editActivityFormData.buyLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">件</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买概率" prop="buyRate" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买概率（0表示不限制）"
+                        v-model="editActivityFormData.buyRate" auto-complete="off" :maxlength="10">
+                    <template slot="append">%</template>
+                </el-input>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="modifyActivitySubmitForm('editActivityFormData')">提 交</el-button>
+            <el-button @click="handleClose">取 消</el-button>
+        </span>
+    </el-dialog>
+    
+
+</div>
+<<<template "activity/product_list.html">>>
+<script>
+    var activityId = '<<<.activityId>>>';
+    var Main = {
+        data() {
+            return {
+                initData: {
+                    dialogVisible:false,
+                    id:'',
+                },
+                activityDetail:{},
+                memberAccountDTO:{},
+                editActivityFormData: {
+                    startDate:'',
+                    endDate:'',
+                    total:10,
+                    secSpeed:10,
+                    buyLimit:2,
+                    buyRate:50,
+                },
+            }
+        },
+        methods: {
+            activityProductsInit(activityId){
+                this.$refs.activityProducts.init(activityId);
+            },
+            handleClose(){
+                this.initData.dialogVisible = false;
+                this.initData.id = '';
+            },
+            showModifyActivity() {
+                this.initData.dialogVisible = true;
+                this.convertData(this.activityDetail);
+            },
+            add2Kill() {
+                const _this = this;
+                jQuery.ajax({
+                    url:jsBasePath + "/activity/add2kill.json?id="+_this.activityDetail.id,
+                    data: {},
+                    type: "post",
+                    dataType: "json",
+                    success: function (response) {
+                        if(response.code === 0) {
+                            _this.$message({
+                                message: '操作成功',
+                                type: 'success'
+                            });
+                        } else {
+                            _this.$message.error(response.message+",操作失败");
+                        }
+                    }
+                });
+            },
+            modifyActivitySubmitForm(formName) {
+                const _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        jQuery.ajax({
+                            url:jsBasePath + "/activity/edit.json",
+                            data: this.$data.editActivityFormData,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.code === 0) {
+                                    _this.initData.dialogVisible=false;
+                                    _this.getDetail();
+                                    _this.$message({
+                                        message: '更新成功',
+                                        type: 'success'
+                                    });
+                                } else {
+                                    _this.$message.error(response.message+",更新失败");
+                                }
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            convertData(data) {
+                const object = JSON.parse(JSON.stringify(data));
+                this.editActivityFormData.id = object.id;
+                this.editActivityFormData.name = object.name;
+                this.editActivityFormData.startDate = object.startTimeStr;
+                this.editActivityFormData.endDate = object.endTimeStr;
+                this.editActivityFormData.total = object.total;
+                this.editActivityFormData.secSpeed = object.secSpeed;
+                this.editActivityFormData.buyLimit = object.buyLimit;
+                this.editActivityFormData.buyRate = object.buyRate;
+            },
+            getDetail: function() {
+                const _this = this;
+                jQuery.ajax({
+                    url: jsBasePath+"/activity/detail.json",
+                    data: {id:activityId},
+                    type: "post",
+                    dataType: "json",
+                    success: function (response) {
+                        if(response.code === 0) {
+                            _this.$data.activityDetail = response.data;
+                            _this.convertData(response.data);
+                            _this.activityProductsInit(_this.$data.activityDetail.id);
+                        }else {
+                            _this.$message({
+                                message: response.message,
+                                type: 'error'
+                            });
+                        }
+                    }
+                });
+            },
+            form() {
+                console.log('form!');
+            }
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+                this.getDetail();
+            })
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#detail')
+</script>

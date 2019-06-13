@@ -1,0 +1,87 @@
+<div class="sidebar" id="SideBar">
+    <el-menu default-active="<<<.base>>>" class="el-menu-vertical-demo el-menu--dark" theme="dark" @open="handleOpen" @close="handleClose" @select="openPage">
+        <template v-for="item in items">
+            <template v-if="item.subs">
+                <el-submenu :index="item.index">
+                    <template slot="title"><i :class="item.icon"></i>
+                        {{ item.title }}
+                    </template>
+                    <el-menu-item v-for="(subItem,i) in item.subs" :key="i" :index="subItem.index">{{ subItem.title }}
+                    </el-menu-item>
+                </el-submenu>
+            </template>
+            <template v-else>
+                <el-menu-item :index="item.index">
+                    <i :class="item.icon"></i>{{ item.title }}
+                </el-menu-item>
+            </template>
+        </template>
+
+    </el-menu>
+</div>
+
+<script>
+    var SideBar = {
+        data() {
+            return {
+                items: [
+                    {
+                        icon: 'el-icon-menu',
+                        index: '1',
+                        title: '商品管理',
+                        subs: [
+                            {
+                                index: '/product/index',
+                                title: '商品管理',
+                            },
+                        ]
+                    },
+                    {
+                        icon: 'el-icon-menu',
+                        index: '2',
+                        title: '活动管理',
+                        subs: [
+                            {
+                                index: '/activity/index',
+                                title: '活动管理',
+                            },
+                        ]
+                    },
+                    {
+                        icon: 'el-icon-menu',
+                        index: '3',
+                        title: '秒杀配置管理',
+                        subs: [
+                            {
+                                index: '/sec_conf/index',
+                                title: '秒杀配置',
+                            },
+                            {
+                                index: '/seckill/detail',
+                                title: '秒杀测试',
+                            },
+                        ]
+                    },
+                ]
+            }
+        },
+        methods: {
+            handleOpen(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            openPage(key,keyPath){
+                window.open(jsBasePath+key,"_self");
+            }
+        },
+        computed:{
+            onRoutes(){
+//                return this.$route.path.replace('/','');
+            }
+        }
+    }
+    var CtorSide = Vue.extend(SideBar)
+    new CtorSide().$mount('#SideBar')
+</script>

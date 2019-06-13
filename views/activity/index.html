@@ -1,0 +1,372 @@
+<div class="table" id="app">
+    <div>
+        <el-breadcrumb separator="">
+            <el-breadcrumb-item><i class="el-icon-menu"></i> 活动管理</el-breadcrumb-item>
+            <el-breadcrumb-item></el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
+    <br/>
+    <el-form ref="formData" label-position="right" :model="formData" :inline="true" label-width="100px" :rules="rules">
+        <el-row :gutter="24">
+            <el-col :span="12" :offset="0">
+                <el-button type="primary" icon="el-icon-plus" @click="initData.dialogVisible = true;">新增活动</el-button>
+            </el-col>
+            <el-col :span="6" :offset="6">
+                <el-button type="primary" icon="el-icon-search"  @click="submitForm('formData')">查询</el-button>
+            </el-col>
+        </el-row>
+    </el-form>
+    <br/>
+    <el-table
+            v-loading.body="initData.loadingTable"
+            element-loading-text="拼命加载中"
+            :data="initData.tableData"
+            border
+            stripe
+            height="580"
+            style="width: 100%"
+            >
+        <el-table-column prop="id" fixed label="活动ID" min-width="60"></el-table-column>
+        <el-table-column prop="name" label="活动名" min-width="60" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="statusStr" label="状态" min-width="60" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="startTimeStr" label="开始时间"  min-width="90"></el-table-column>
+        <el-table-column prop="endTimeStr" label="结束时间"  min-width="90"></el-table-column>
+        <el-table-column prop="total" label="商品默认数量"  min-width="90"></el-table-column>
+        <el-table-column prop="secSpeed" label="默认购买速率"  min-width="90"></el-table-column>
+        <el-table-column prop="buyLimit" label="默认购买限制"  min-width="90"></el-table-column>
+        <el-table-column prop="buyRate" label="默认购买概率" :formatter="formatBuyRate"  min-width="90"></el-table-column>
+        <el-table-column fixed="right" label="操作" min-width="80">
+            <template scope="scope">
+                <el-button @click="editDetail(scope.row)" type="text" size="small">编辑</el-button>
+                <el-button @click="handleDetail(scope.row)" type="text" size="small">查看</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="formData.page"
+            :page-sizes="[20, 150, 250]"
+            :page-size="formData.rows"
+            layout="total, sizes, prev, pager, next"
+            :total="initData.total">
+    </el-pagination>
+  </span>
+    </el-dialog>
+
+    <el-dialog  width="30%" title="新增活动" :visible.sync="initData.dialogVisible" append-to-body>
+        <el-form label-width="120px" ref="addFormData" :model="addFormData"  >
+            <el-form-item label="活动名" prop="name" :rules="{required: true, message: '请填写活动', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入活动"
+                        v-model="addFormData.name" auto-complete="off" :maxlength="50">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="开始时间" prop="startDate" >
+                <el-date-picker
+                        v-model="addFormData.startDate"
+                        type="datetime"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="结束时间" prop="endDate" >
+                <el-date-picker
+                        v-model="addFormData.endDate"
+                        type="datetime"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="默认数量" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入数量"
+                        v-model="addFormData.total" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买速率" prop="secSpeed" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买速率（0表示不限制）"
+                        v-model="addFormData.secSpeed" auto-complete="off" :maxlength="10">
+                    <template slot="append">（件/每秒）</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买限制" prop="buyLimit" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买限制（0表示不限制）"
+                        v-model="addFormData.buyLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">件</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买概率" prop="buyRate" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买概率（0表示不限制）"
+                        v-model="addFormData.buyRate" auto-complete="off" :maxlength="10">
+                    <template slot="append">%</template>
+                </el-input>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" :disabled="initData.addGoodsDisabled" @click="addGoods('addFormData')">提 交</el-button>
+            </span>
+    </el-dialog>
+
+
+    <el-dialog  width="30%" title="编辑活动" :visible.sync="editDialogVisible" append-to-body>
+        <el-form label-width="120px" ref="editFormData" :model="editFormData"  >
+            <el-form-item label="活动名" prop="name" :rules="{required: true, message: '请填写活动', trigger: 'change' }">
+                <el-input
+                        type="input"
+                        placeholder="请输入活动"
+                        v-model="editFormData.name" auto-complete="off" :maxlength="50">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="开始时间" prop="startDate" >
+                <el-date-picker
+                        v-model="editFormData.startDate"
+                        type="datetime"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="结束时间" prop="endDate" >
+                <el-date-picker
+                        v-model="editFormData.endDate"
+                        type="datetime"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd HH:mm:ss"
+                        value-format="yyyy-MM-dd HH:mm:ss" style="width: 100%;">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="默认数量" prop="total" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入数量"
+                        v-model="editFormData.total" auto-complete="off" :maxlength="10">
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买速率" prop="secSpeed" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买速率（0表示不限制）"
+                        v-model="editFormData.secSpeed" auto-complete="off" :maxlength="10">
+                    <template slot="append">（件/每秒）</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买限制" prop="buyLimit" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买限制（0表示不限制）"
+                        v-model="editFormData.buyLimit" auto-complete="off" :maxlength="10">
+                    <template slot="append">件</template>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="默认购买概率" prop="buyRate" :rules="[{pattern: /^[+]?([1-9]\d*)$/,message: '只允许正整数', trigger: 'change' }]" >
+                <el-input
+                        type="input"
+                        placeholder="请输入购买概率（0表示不限制）"
+                        v-model="editFormData.buyRate" auto-complete="off" :maxlength="10">
+                    <template slot="append">%</template>
+                </el-input>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" :disabled="initData.addGoodsDisabled" @click="editGoods('editFormData')">提 交</el-button>
+            </span>
+    </el-dialog>
+
+
+</div>
+
+
+<script>
+    var Main = {
+        data() {
+            return {
+                editDialogVisible:false,
+                initData: {
+                    supplierOptions:[],
+                    tableData:[],
+                    currentPage: 1,
+                    total:0,
+                    loadingTable:true,
+                    dialogVisible:false,
+                    addGoodsDisabled:false,
+                },
+                formData: {
+                    name:'',
+                    page:1,
+                    rows:20,
+                    sort:'id',
+                    order:'desc',
+                },
+                addFormData: {
+                    startDate:'',
+                    endDate:'',
+                    total:10,
+                    secSpeed:10,
+                    buyLimit:2,
+                    buyRate:50,
+                },
+                editFormData: {
+                    startDate:'',
+                    endDate:'',
+                    total:10,
+                    secSpeed:10,
+                    buyLimit:2,
+                    buyRate:50,
+                },
+                rules: {
+                },
+            }
+        },
+        methods: {
+            formatBuyRate(row, column, value) {
+                return value + "%"
+            },
+            refresh: function () {
+                console.log("refresh");
+            },
+            addGoods(formName) {
+                var _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        var initData = this.initData;
+                        initData.addGoodsDisabled = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/activity/add.json",
+                            data: this.$data.addFormData,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.code === 0) {
+                                    _this.$message({
+                                        message: '添加成功',
+                                        type: 'success'
+                                    });
+                                    initData.dialogVisible=false;
+                                    _this.submitForm('formData');
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                                initData.addGoodsDisabled = false;
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            editGoods(formName) {
+                var _this = this;
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        var initData = this.initData;
+                        initData.addGoodsDisabled = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/activity/edit.json",
+                            data: this.$data.editFormData,
+                            type: "post",
+                            dataType: "json",
+                            success: function (response) {
+                                if(response.code === 0) {
+                                    _this.$message({
+                                        message: '修改成功',
+                                        type: 'success'
+                                    });
+                                    _this.editDialogVisible=false;
+                                    _this.submitForm('formData');
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                                initData.addGoodsDisabled = false;
+                            }
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            handleDetail(row) {
+                window.open(jsBasePath+'/activity/detail?id='+row.id);
+            },
+            editDetail(row) {
+                this.editFormData.id = row.id;
+                this.editFormData.name = row.name;
+                this.editFormData.startDate = row.startTimeStr;
+                this.editFormData.endDate = row.endTimeStr;
+                this.editFormData.total = row.total;
+                this.editFormData.secSpeed = row.secSpeed;
+                this.editFormData.buyLimit = row.buyLimit;
+                this.editFormData.buyRate = row.buyRate;
+                this.editDialogVisible = true;
+            },
+            handleSizeChange(val) {
+                this.formData.rows = val;
+                this.formData.page = 1;
+                this.submitForm();
+            },
+            handleCurrentChange(val) {
+                this.formData.page = val;
+                this.submitForm();
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            submitForm(formName) {
+                var _this = this;
+                var refs = this.$refs;
+                var initData = this.initData;
+                refs['formData'].validate((valid) => {
+                    if(valid){
+                        initData.loadingTable = true;
+                        jQuery.ajax({
+                            url:jsBasePath + "/activity/list.json",
+                            data: this.$data.formData,
+                            type: "get",
+                            dataType: "json",
+                            success: function (response) {
+                                initData.loadingTable = false;
+                                if(response.code == 0) {
+                                    initData.tableData = response.rows;
+                                    initData.total = response.total;
+                                } else {
+                                    _this.$message({
+                                        message: response.message,
+                                        type: 'error'
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+            },
+            form() {
+                console.log('form!');
+            }
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+                this.submitForm('formData');
+            })
+        }
+    }
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
